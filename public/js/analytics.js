@@ -1,7 +1,9 @@
 // Mathematical Data Visualization & Analytics Suite
 const Analytics = {
   datasets: [],
+  experiments: [],
   currentDataset: null,
+  currentExperimentId: null,
   charts: {},
 
   async init() {
@@ -13,39 +15,270 @@ const Analytics = {
       });
     }
 
-    // Default to Stroop dummy dataset
-    if (this.datasets.length > 0) {
-      await this.selectDataset(this.datasets[0].slug);
+    // Default to first live experiment or dummy dataset
+    if (this.experiments.length > 0) {
+      await this.loadLiveExperiment(this.experiments[0].id);
+    } else if (this.datasets.length > 0) {
+      await this.selectSyntheticDataset(this.datasets[0].slug);
     }
   },
 
-  async loadDatasetsList() {
+  async loadDatasetsList(selectedExpId = null) {
     try {
-      const res = await API.getDatasets();
-      this.datasets = res.datasets;
+      const [dsRes, expRes] = await Promise.all([
+        API.getDatasets().catch(() => ({ datasets: [] })),
+        API.getExperiments().catch(() => ({ experiments: [] }))
+      ]);
+
+      this.datasets = dsRes.datasets || [];
+      this.experiments = expRes.experiments || [];
 
       const select = document.getElementById('analytics-dataset-select');
       if (select) {
         select.innerHTML = '';
-        this.datasets.forEach(ds => {
-          const opt = document.createElement('option');
-          opt.value = ds.slug;
-          opt.textContent = `${ds.name} [Synthetic Dataset]`;
-          select.appendChild(opt);
-        });
+
+        if (this.experiments.length > 0) {
+          const groupExp = document.createElement('optgroup');
+          groupExp.label = '🔬 Laboratory Experiments (Live Participant Telemetry)';
+          this.experiments.forEach(e => {
+            const opt = document.createElement('option');
+            opt.value = `exp:${e.id}`;
+            opt.textContent = `${e.title} [N = ${e.completed_participants || 0} Participants]`;
+            groupExp.appendChild(opt);
+          });
+          select.appendChild(groupExp);
+        }
+
+        if (this.datasets.length > 0) {
+          const groupDs = document.createElement('optgroup');
+          groupDs.label = '📊 Synthetic Reference Datasets';
+          this.datasets.forEach(ds => {
+            const opt = document.createElement('option');
+            opt.value = `ds:${ds.slug}`;
+            opt.textContent = `${ds.name} [Synthetic Benchmark]`;
+            groupDs.appendChild(opt);
+          });
+          select.appendChild(groupDs);
+        }
+
+        if (selectedExpId) {
+          select.value = `exp:${selectedExpId}`;
+        }
       }
     } catch (err) {
       console.error('Failed to load datasets:', err);
     }
   },
 
-  async selectDataset(slug) {
+  async selectDataset(val) {
+    if (!val) return;
+    if (val.startsWith('exp:')) {
+      await this.loadLiveExperiment(val.replace('exp:', ''));
+    } else if (val.startsWith('ds:')) {
+      this.currentExperimentId = null;
+      await this.selectSyntheticDataset(val.replace('ds:', ''));
+    } else {
+      await this.loadLiveExperiment(val);
+    }
+  },
+
+  async selectSyntheticDataset(slug) {
     try {
+      this.currentExperimentId = null;
       const data = await API.getDataset(slug);
       this.currentDataset = data;
       this.renderDashboard(data);
+      // Empty participant sessions table for synthetic data
+      const tbody = document.getElementById('analytics-participants-tbody');
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Showing synthetic dataset benchmark (${data.participant_count} virtual subjects). Switch to a laboratory study to inspect real participant tokens.</td></tr>`;
+      }
+      const badge = document.getElementById('analytics-cohort-badge');
+      if (badge) badge.textContent = `N = ${data.participant_count} VIRTUAL`;
     } catch (err) {
       App.showToast('Failed to load dataset: ' + err.message, 'error');
+    }
+  },
+
+  async loadLiveExperiment(expId) {
+    try {
+      this.currentExperimentId = expId;
+      const select = document.getElementById('analytics-dataset-select');
+      if (select && select.value !== `exp:${expId}`) {
+        select.value = `exp:${expId}`;
+      }
+
+      const res = await API.getExperimentAnalytics(expId);
+      const titleEl = document.getElementById('analytics-study-title');
+      const descEl = document.getElementById('analytics-study-desc');
+      const badgeEl = document.getElementById('analytics-cohort-badge');
+      const partTitleEl = document.getElementById('analytics-participants-title');
+
+      if (titleEl) titleEl.textContent = res.experiment?.title || 'Experiment Analytics';
+      if (descEl) descEl.textContent = res.experiment?.description || 'Empirical telemetry & millisecond latency modeling';
+      if (badgeEl) badgeEl.textContent = `N = ${res.participants || 0} PARTICIPANTS`;
+      if (partTitleEl) partTitleEl.textContent = `Participant Cohort Telemetry (${res.experiment?.title || ''})`;
+
+      if (!res.hasData || res.participants === 0) {
+        this.renderMetricCards({
+          meanRt: '-- ms',
+          medianRt: '-- ms',
+          trimmedMean: '-- ms',
+          stdev: '±-- ms',
+          accuracy: '--%',
+          effectSize: 'N = 0'
+        });
+        const tbody = document.getElementById('analytics-participants-tbody');
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">No participant sessions recorded yet for this experiment.</td></tr>`;
+        }
+        App.showToast('No participant data recorded yet for this study.', 'info');
+        return;
+      }
+
+      // 1. Metric Cards
+      this.renderMetricCards({
+        meanRt: `${res.stats.meanRt} ms`,
+        medianRt: `${res.stats.medianRt} ms`,
+        trimmedMean: `${res.stats.trimmedMean} ms`,
+        stdev: `±${res.stats.stdev} ms`,
+        accuracy: `${res.stats.accuracy}%`,
+        effectSize: `N = ${res.participants} Subjects`
+      });
+
+      // 2. Chart 1: RT Distribution Histogram
+      const rts = res.rawTrials.map(t => t.response_time_ms);
+      this.renderHistogram('chart-rt-dist', rts, `${res.experiment.title} RT Latencies (N=${res.participants})`, 25);
+
+      // 3. Chart 2: Condition Comparison Bar Chart
+      if (res.conditionStats && res.conditionStats.length > 0) {
+        const condLabels = res.conditionStats.map(c => c.condition);
+        const condMeans = res.conditionStats.map(c => c.meanRt);
+        const condErrors = res.conditionStats.map(c => parseFloat((100 - c.accuracy).toFixed(1)));
+        this.renderConditionChart('chart-condition-compare', condLabels, condMeans, condErrors);
+      }
+
+      // 4. Chart 3: Speed-Accuracy Trade-off
+      const trialsMapped = res.rawTrials.map(t => ({
+        responseTimeMs: t.response_time_ms,
+        isCorrect: t.is_correct
+      }));
+      this.renderSpeedAccuracyPlot('chart-sat-plot', trialsMapped);
+
+      // 5. Chart 4: Ex-Gaussian Mathematical Distribution Curve Fit
+      this.renderExGaussianPlot('chart-fourth-slot', res.stats.meanRt, Math.max(25, res.stats.stdev), 75);
+
+      // 6. Participant Sessions Table
+      this.renderLiveParticipantTable(res.sessions || []);
+    } catch (err) {
+      console.error('[Load Live Exp Error]', err);
+      App.showToast('Failed to load study analytics: ' + err.message, 'error');
+    }
+  },
+
+  renderLiveParticipantTable(sessions) {
+    const tbody = document.getElementById('analytics-participants-tbody');
+    if (!tbody) return;
+
+    if (!sessions || sessions.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">No completed participant sessions found for this test.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    sessions.forEach(s => {
+      const tr = document.createElement('tr');
+      const dateStr = s.completed_at ? new Date(s.completed_at).toLocaleDateString() + ' ' + new Date(s.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (s.started_at || '--');
+      const acc = s.score_accuracy != null ? parseFloat(s.score_accuracy).toFixed(1) : '--';
+      const rt = s.mean_rt_ms != null ? Math.round(s.mean_rt_ms) : '--';
+
+      tr.innerHTML = `
+        <td>
+          <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan); font-size: 0.9rem;">
+            ${s.participant_token || 'SUBJ_ANON'}
+          </span>
+        </td>
+        <td style="font-size: 0.85rem; color: var(--text-secondary);">
+          ${dateStr}
+        </td>
+        <td>
+          <span class="badge" style="background: rgba(99, 102, 241, 0.12); color: var(--primary); font-family: var(--font-mono); font-size: 0.76rem; border: 1px solid rgba(99, 102, 241, 0.25);">
+            ${s.screen_refresh_rate || 60} Hz
+          </span>
+        </td>
+        <td>
+          <strong>${s.trial_count || 0}</strong> trials
+        </td>
+        <td>
+          <span class="badge ${acc >= 90 ? 'badge-active' : 'badge-draft'}" style="font-weight: 700;">
+            ${acc}%
+          </span>
+        </td>
+        <td>
+          <strong style="color: var(--text-primary); font-family: var(--font-mono);">${rt} ms</strong>
+        </td>
+        <td style="text-align: right;">
+          <button class="btn btn-secondary btn-sm" onclick="Analytics.inspectParticipantSession('${s.id}')">
+            🔬 Inspect Trials
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  },
+
+  async inspectParticipantSession(sessionId) {
+    try {
+      const res = await API.getSessionTrials(sessionId);
+      const session = res.session;
+      const trials = res.trials;
+
+      const titleEl = document.getElementById('modal-participant-token-title');
+      const metaEl = document.getElementById('modal-participant-meta');
+      const tbodyEl = document.getElementById('modal-participant-trials-tbody');
+
+      if (titleEl) {
+        titleEl.textContent = `Participant ${session?.participant_token || sessionId} — Telemetry Profile`;
+      }
+
+      if (metaEl) {
+        metaEl.innerHTML = `
+          <div><strong>Study:</strong> ${session?.experiment_title || 'Cognitive Paradigm'}</div>
+          <div><strong>Completed:</strong> ${session?.completed_at || '--'}</div>
+          <div><strong>Hardware V-Sync:</strong> <span style="color:var(--accent-cyan); font-family:var(--font-mono);">${session?.screen_refresh_rate || 60} Hz</span></div>
+          <div><strong>Mean Latency:</strong> <span style="font-family:var(--font-mono);">${session?.mean_rt_ms || '--'} ms</span></div>
+          <div><strong>Overall Accuracy:</strong> <span style="color:var(--accent-green); font-weight:700;">${session?.score_accuracy || '--'}%</span></div>
+          <div><strong>Verification:</strong> <span style="font-family:var(--font-mono);">${session?.completion_code || '--'}</span></div>
+        `;
+      }
+
+      if (tbodyEl) {
+        if (!trials || trials.length === 0) {
+          tbodyEl.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No trial telemetry rows recorded for this session.</td></tr>`;
+        } else {
+          tbodyEl.innerHTML = '';
+          trials.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td style="font-family: var(--font-mono); font-weight: 700; color: var(--text-muted);">${t.trial_number}</td>
+              <td style="font-weight: 600; color: var(--text-primary);">${t.condition_name}</td>
+              <td style="color: var(--text-secondary);">${t.stimulus_presented || '--'}</td>
+              <td><span class="badge" style="font-family: var(--font-mono); font-size: 0.78rem;">${(t.key_pressed || '').toUpperCase()}</span></td>
+              <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">${Math.round(t.response_time_ms)} ms</td>
+              <td>
+                <span class="badge ${t.is_correct === 1 ? 'badge-active' : 'badge-draft'}">
+                  ${t.is_correct === 1 ? '✓ CORRECT' : '✗ ERROR'}
+                </span>
+              </td>
+            `;
+            tbodyEl.appendChild(tr);
+          });
+        }
+      }
+
+      App.openModal('participant-trials-modal');
+    } catch (err) {
+      App.showToast('Failed to load session trials: ' + err.message, 'error');
     }
   },
 
@@ -654,6 +887,12 @@ const Analytics = {
   },
 
   exportCurrentDatasetCSV() {
+    if (this.currentExperimentId) {
+      window.location.href = `/api/experiments/${this.currentExperimentId}/export/csv`;
+      App.showToast('Exporting study dataset CSV...', 'success');
+      return;
+    }
+
     if (!this.currentDataset) return;
     const payload = this.currentDataset.dataset_payload;
     if (!Array.isArray(payload) || payload.length === 0) {

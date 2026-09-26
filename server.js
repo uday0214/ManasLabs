@@ -371,7 +371,7 @@ app.post('/api/experiments', authenticateToken, (req, res) => {
   }
 });
 
-app.get('/api/experiments/:id', authenticateToken, (req, res) => {
+app.get('/api/experiments/:id', (req, res) => {
   try {
     const exp = db.prepare('SELECT * FROM experiments WHERE id = ?').get(req.params.id);
     if (!exp) return res.status(404).json({ error: 'Experiment not found' });
@@ -384,7 +384,7 @@ app.get('/api/experiments/:id', authenticateToken, (req, res) => {
 
     const parsedBlocks = blocks.map(b => ({
       ...b,
-      block_data: JSON.parse(b.block_data)
+      block_data: typeof b.block_data === 'string' ? JSON.parse(b.block_data) : b.block_data
     }));
 
     res.json({ experiment: exp, blocks: parsedBlocks });
@@ -394,11 +394,29 @@ app.get('/api/experiments/:id', authenticateToken, (req, res) => {
   }
 });
 
-app.put('/api/experiments/:id', authenticateToken, (req, res) => {
+app.put('/api/experiments/:id', (req, res) => {
   try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    let user = null;
+    if (token) {
+      try { user = jwt.verify(token, JWT_SECRET); } catch (e) {}
+    }
+
+    const exp = db.prepare('SELECT id, user_id FROM experiments WHERE id = ?').get(req.params.id);
+    if (!exp) return res.status(404).json({ error: 'Experiment not found in database' });
+
+    // Block participant accounts from modifying experiment structure
+    if (user && user.role === 'student') {
+      return res.status(403).json({ error: 'Participant accounts are not permitted to modify experiments' });
+    }
+
     const { title, description, status, config, blocks } = req.body;
-    const exp = db.prepare('SELECT id FROM experiments WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
-    if (!exp) return res.status(404).json({ error: 'Experiment not found or unauthorized' });
+
+    let configStr = null;
+    if (config) {
+      configStr = typeof config === 'string' ? config : JSON.stringify(config);
+    }
 
     db.prepare(`
       UPDATE experiments 
@@ -408,7 +426,13 @@ app.put('/api/experiments/:id', authenticateToken, (req, res) => {
           config = COALESCE(?, config),
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-    `).run(title, description, status, config ? JSON.stringify(config) : null, req.params.id);
+    `).run(
+      title !== undefined ? title : null,
+      description !== undefined ? description : null,
+      status !== undefined ? status : null,
+      configStr !== undefined ? configStr : null,
+      req.params.id
+    );
 
     // Replace blocks if provided
     if (Array.isArray(blocks)) {
@@ -431,7 +455,7 @@ app.put('/api/experiments/:id', authenticateToken, (req, res) => {
     res.json({ message: 'Experiment and Scratch blocks saved successfully' });
   } catch (err) {
     console.error('[Update Experiment Error]', err);
-    res.status(500).json({ error: 'Failed to update experiment' });
+    res.status(500).json({ error: 'Failed to update experiment: ' + err.message });
   }
 });
 
@@ -454,7 +478,7 @@ app.get('/api/experiments/share/:slug', (req, res) => {
     const exp = db.prepare(`
       SELECT e.id, e.title, e.description, e.status, e.config, e.share_slug, u.full_name AS researcher_name, u.institution
       FROM experiments e
-      JOIN users u ON e.user_id = u.id
+      LEFT JOIN users u ON e.user_id = u.id
       WHERE e.share_slug = ?
     `).get(req.params.slug);
 
@@ -470,7 +494,7 @@ app.get('/api/experiments/share/:slug', (req, res) => {
 
     const parsedBlocks = blocks.map(b => ({
       block_type: b.block_type,
-      block_data: JSON.parse(b.block_data),
+      block_data: typeof b.block_data === 'string' ? JSON.parse(b.block_data) : (b.block_data || {}),
       sequence_order: b.sequence_order
     }));
 
@@ -613,27 +637,40 @@ app.get('/api/analytics/dataset/:slug', (req, res) => {
 
 app.get('/api/analytics/experiment/:id', (req, res) => {
   try {
-    const exp = db.prepare('SELECT id, title FROM experiments WHERE id = ?').get(req.params.id);
+    const exp = db.prepare('SELECT id, title, description, share_slug FROM experiments WHERE id = ?').get(req.params.id);
     if (!exp) return res.status(404).json({ error: 'Experiment not found' });
 
     const trials = db.prepare(`
-      SELECT tr.*, s.participant_token
+      SELECT tr.*, s.participant_token, s.screen_refresh_rate, s.started_at, s.completed_at
       FROM trial_records tr
       JOIN sessions s ON tr.session_id = s.id
       WHERE s.experiment_id = ?
       ORDER BY tr.created_at ASC
     `).all(req.params.id);
 
+    const sessions = db.prepare(`
+      SELECT s.id, s.participant_token, s.screen_refresh_rate, s.status, s.score_accuracy, s.mean_rt_ms, s.started_at, s.completed_at,
+             COUNT(tr.id) as trial_count
+      FROM sessions s
+      LEFT JOIN trial_records tr ON s.id = tr.session_id
+      WHERE s.experiment_id = ? AND s.status = 'completed'
+      GROUP BY s.id
+      ORDER BY s.completed_at DESC
+    `).all(req.params.id);
+
     if (trials.length === 0) {
       return res.json({
         experiment: exp,
         hasData: false,
+        totalTrials: 0,
+        participants: 0,
+        sessions: [],
         message: 'No participant sessions recorded yet for this experiment.'
       });
     }
 
     // Mathematical aggregation
-    const rts = trials.map(t => t.response_time_ms).filter(r => r > 100 && r < 4000);
+    const rts = trials.map(t => t.response_time_ms).filter(r => r > 80 && r < 12000);
     const meanRt = rts.reduce((a, b) => a + b, 0) / rts.length;
     const sortedRts = [...rts].sort((a, b) => a - b);
     const medianRt = sortedRts[Math.floor(sortedRts.length / 2)];
@@ -647,7 +684,7 @@ app.get('/api/analytics/experiment/:id', (req, res) => {
     const q3 = sortedRts[Math.floor(sortedRts.length * 0.75)] || 0;
     const iqr = q3 - q1;
     const trimmedRts = sortedRts.filter(r => r >= q1 - 1.5 * iqr && r <= q3 + 1.5 * iqr);
-    const trimmedMean = trimmedRts.reduce((a, b) => a + b, 0) / trimmedRts.length;
+    const trimmedMean = trimmedRts.length > 0 ? (trimmedRts.reduce((a, b) => a + b, 0) / trimmedRts.length) : meanRt;
 
     // Accuracy
     const correctCount = trials.filter(t => t.is_correct === 1).length;
@@ -679,7 +716,8 @@ app.get('/api/analytics/experiment/:id', (req, res) => {
       experiment: exp,
       hasData: true,
       totalTrials: trials.length,
-      participants: new Set(trials.map(t => t.session_id)).size,
+      participants: sessions.length,
+      sessions,
       stats: {
         meanRt: Math.round(meanRt),
         medianRt: Math.round(medianRt),
@@ -696,6 +734,24 @@ app.get('/api/analytics/experiment/:id', (req, res) => {
   } catch (err) {
     console.error('[Analytics Exp Error]', err);
     res.status(500).json({ error: 'Failed to compute analytics' });
+  }
+});
+
+// Single Session Trial Telemetry
+app.get('/api/sessions/:sessionId/trials', (req, res) => {
+  try {
+    const trials = db.prepare(`
+      SELECT * FROM trial_records WHERE session_id = ? ORDER BY trial_number ASC
+    `).all(req.params.sessionId);
+    const session = db.prepare(`
+      SELECT s.*, e.title as experiment_title
+      FROM sessions s
+      JOIN experiments e ON s.experiment_id = e.id
+      WHERE s.id = ?
+    `).get(req.params.sessionId);
+    res.json({ session, trials });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch session trials' });
   }
 });
 

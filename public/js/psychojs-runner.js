@@ -78,8 +78,9 @@ const PsychoJSRunner = {
     }
   },
 
-  async startParticipantSession(slugOrExperiment) {
+  async startParticipantSession(slugOrExperiment, options = {}) {
     let experimentData = null;
+    this.returnView = options.returnView || null;
 
     if (typeof slugOrExperiment === 'string') {
       try {
@@ -93,6 +94,7 @@ const PsychoJSRunner = {
       // Sandbox preview mode directly from builder
       experimentData = slugOrExperiment;
       this.isCustomSandbox = true;
+      if (!this.returnView) this.returnView = 'view-builder';
     }
 
     this.currentStudy = experimentData.experiment || { title: 'PsychoJS Sandbox Study' };
@@ -141,7 +143,9 @@ const PsychoJSRunner = {
         </label>
 
         <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-          <button class="btn btn-secondary" onclick="App.switchView('view-home')">Cancel</button>
+          <button class="btn btn-secondary" onclick="App.switchView('${this.returnView || (this.isCustomSandbox ? 'view-builder' : 'view-home')}')">
+            ${this.returnView === 'view-researcher' ? '&larr; Return to Lab' : (this.returnView === 'view-builder' ? '&larr; Return to Builder' : 'Cancel')}
+          </button>
           <button class="btn btn-primary btn-lg" id="btn-proceed-calibration" disabled>
             Proceed to Calibration & Instructions &rarr;
           </button>
@@ -1095,11 +1099,21 @@ const PsychoJSRunner = {
           </div>
         </div>
 
-        <div style="display: flex; gap: 1rem; justify-content: center;">
-          <button class="btn btn-secondary" onclick="App.switchView('view-student-portal')">
-            &larr; Back to Student Portal
-          </button>
-          <button class="btn btn-primary" onclick="App.switchView('view-analytics')">
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          ${this.returnView === 'view-researcher' ? `
+            <button class="btn btn-primary" onclick="App.switchView('view-researcher')">
+              &larr; Return to Scientist Lab
+            </button>
+          ` : (this.isCustomSandbox ? `
+            <button class="btn btn-accent" onclick="App.switchView('view-builder')">
+              &larr; Return to Scratch Builder
+            </button>
+          ` : `
+            <button class="btn btn-secondary" onclick="App.switchView('view-student-portal')">
+              &larr; Back to Student Portal
+            </button>
+          `)}
+          <button class="btn btn-secondary" onclick="App.switchView('view-analytics')">
             Inspect Cognitive Graphs &rarr;
           </button>
         </div>

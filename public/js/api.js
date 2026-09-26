@@ -169,4 +169,9 @@ const API = {
   async getExperimentAnalytics(id) {
     return this.request(`/api/analytics/experiment/${id}`);
   },
+
+  async getSessionTrials(sessionId) {
+    return this.request(`/api/sessions/${sessionId}/trials`);
+  },
 };
+

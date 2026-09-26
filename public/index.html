@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexora | Web-Based Cognitive Experiment Platform</title>
+  <title>ManasLabs | Web-Based Cognitive Experiment Platform</title>
   
   <!-- Modern Scientific Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,22 +22,6 @@
        ========================================================================= -->
   <canvas id="particles-canvas"></canvas>
 
-  <!-- Floating Particle Info Pill (Inspired by Video) -->
-  <div class="particle-info-pill">
-    <div class="particle-dot-pulse"></div>
-    <div>
-      <div class="particle-info-title">Particles</div>
-      <div class="particle-info-sub">Precise technical lines</div>
-    </div>
-  </div>
-
-  <!-- Floating Controls Pill (Inspired by Video) -->
-  <div class="floating-controls-pill">
-    <div class="swatch-btn swatch-light" title="Dark charcoal lines on whitish surface" onclick="ParticleEngine.setTheme('dark-lines'); App.showToast('Particle lines: Technical charcoal', 'info');"></div>
-    <div class="swatch-btn swatch-dark" title="High contrast mode" onclick="ParticleEngine.setTheme('high-contrast'); App.showToast('Particle lines: High contrast', 'info');"></div>
-    <button class="btn btn-secondary btn-sm" style="border:none; background:transparent; padding: 0.15rem 0.4rem; cursor:pointer;" onclick="ParticleEngine.createParticles(); App.showToast('Re-seeded particle network', 'info');" title="Re-randomize Mesh">▲</button>
-  </div>
-
   <!-- =========================================================================
        Global Navigation Header
        ========================================================================= -->
@@ -45,10 +29,9 @@
     <div class="nav-container">
       <a href="#" class="brand-wrapper" onclick="App.switchView('view-home')">
         <div class="brand-icon">Ψ</div>
-        <div>
-          <span class="brand-title">Nexora</span>
+        <div style="white-space: nowrap; flex-shrink: 0;">
+          <span class="brand-title">ManasLabs</span>
         </div>
-        <span class="brand-badge">PsychoJS SaaS</span>
       </a>
 
       <ul class="nav-links">
@@ -100,12 +83,12 @@
          --------------------------------------------------------------------- -->
     <section class="view-section active" id="view-home">
       <div class="hero-wrapper">
-        <span class="hero-pill">⚡ High-Precision Cognitive Science in the Browser</span>
+        <span class="hero-pill">⚡ ManasLabs</span>
         <h1 class="hero-title">
           Build & Deploy <span class="text-highlight text-highlight-cyan">Millisecond-Accurate</span> Behavioral Experiments
         </h1>
         <p class="hero-desc" style="max-width: 680px; margin: 0 auto 2rem; font-size: 1.1rem;">
-          Nexora empowers researchers to construct cognitive paradigms with no-code Scratch blocks, deploy frame-synchronized PsychoJS studies, and model behavioral latency in real time.
+          ManasLabs empowers researchers to construct cognitive paradigms with no-code Scratch blocks, deploy frame-synchronized PsychoJS studies, and model behavioral latency in real time.
         </p>
 
         <div class="hero-cta" style="margin-bottom: 3.5rem;">
@@ -814,6 +797,53 @@
           </div>
         </div>
       </div>
+
+      <!-- Participant Cohort Telemetry Section -->
+      <div class="participant-cohort-section" style="margin-top: 2rem; background: var(--bg-card); border: 1px solid var(--border-distinct); border-radius: var(--radius-xl); padding: 1.75rem 2rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 1.4rem;">👥</span>
+              <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin: 0;" id="analytics-participants-title">
+                Participant Sessions & Raw Telemetry
+              </h3>
+              <span class="badge badge-active" id="analytics-cohort-badge" style="font-family: var(--font-mono); font-size: 0.78rem;">
+                N = -- PARTICIPANTS
+              </span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0.25rem 0 0 0;">
+              Examine individual participant sessions, timing latency profiles, accuracy scores, and raw trial telemetry
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="Analytics.exportCurrentDatasetCSV()">
+              📥 Export Study CSV
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="App.switchView('view-researcher')">
+              &larr; Back to Lab
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto; max-height: 480px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+          <table class="experiments-table" style="margin: 0; min-width: 700px;">
+            <thead>
+              <tr style="position: sticky; top: 0; background: #f8fafc; z-index: 2;">
+                <th>Participant Token</th>
+                <th>Completed Date</th>
+                <th>Display Refresh</th>
+                <th>Trials</th>
+                <th>Accuracy Score</th>
+                <th>Mean Latency</th>
+                <th style="text-align: right;">Telemetry</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-participants-tbody">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- ---------------------------------------------------------------------
@@ -1005,7 +1035,7 @@
     <div class="modal-card" style="max-width: 520px;">
       <div class="modal-header" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff;">Nexora Authentication Portal</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff;">ManasLabs Authentication Portal</h3>
           <button class="btn btn-secondary btn-sm modal-close">&times;</button>
         </div>
 
@@ -1221,6 +1251,46 @@
       </div>
       <div class="modal-footer" style="background: var(--grad-gray-subtle); padding: 0.65rem 1.5rem; justify-content: flex-end;">
         <button class="btn btn-secondary btn-sm modal-close">Close Editor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 4: PARTICIPANT TRIAL TELEMETRY INSPECTOR
+       ========================================================================= -->
+  <div class="modal-overlay" id="participant-trials-modal" style="display: none;">
+    <div class="modal-card" style="max-width: 860px; width: 92vw;">
+      <div class="modal-header">
+        <div style="font-weight: 800; color: var(--text-primary); font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🔬</span>
+          <span id="modal-participant-token-title">Participant Trial Telemetry Log</span>
+        </div>
+        <button class="btn btn-secondary btn-sm modal-close">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+        <div id="modal-participant-meta" style="display: flex; gap: 1.5rem; margin-bottom: 1.25rem; font-size: 0.88rem; color: var(--text-secondary); flex-wrap: wrap; background: #f8fafc; padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <!-- Injected participant metadata -->
+        </div>
+        <div style="overflow-x: auto; max-height: 420px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+          <table class="experiments-table" style="margin: 0; min-width: 650px;">
+            <thead>
+              <tr style="position: sticky; top: 0; background: #f8fafc; z-index: 2;">
+                <th>Trial #</th>
+                <th>Condition</th>
+                <th>Stimulus Presented</th>
+                <th>Response Key</th>
+                <th>Reaction Time</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="modal-participant-trials-tbody">
+              <!-- Injected trial rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: flex-end;">
+        <button class="btn btn-secondary btn-sm modal-close">Close Telemetry Log</button>
       </div>
     </div>
   </div>

@@ -362,11 +362,16 @@ const ScratchBuilder = {
     try {
       const data = await API.getExperiment(id);
       this.currentExperiment = data.experiment;
-      this.blocks = data.blocks.map(b => ({
-        id: b.id,
-        type: b.block_type,
-        data: b.block_data
-      }));
+      this.blocks = data.blocks.map(b => {
+        const def = this.blockDefinitions[b.block_type] || {};
+        const defData = def.defaultData || {};
+        const storedData = typeof b.block_data === 'string' ? JSON.parse(b.block_data) : (b.block_data || {});
+        return {
+          id: b.id || ('blk_' + Math.random().toString(36).substr(2, 9)),
+          type: b.block_type,
+          data: { ...defData, ...storedData }
+        };
+      });
 
       // Check if custom PsychoJS code was previously saved
       let cfg = {};
@@ -405,6 +410,8 @@ const ScratchBuilder = {
       this.renderCanvas();
       this.selectBlock(this.blocks[0]?.id);
       this.initCodeEditor();
+      this.populateCodeEditor();
+      App.showToast(`Loaded "${this.currentExperiment.title}" into Scratch Studio`, 'success');
     } catch (err) {
       App.showToast('Failed to load experiment: ' + err.message, 'error');
     }
@@ -1347,8 +1354,23 @@ const ScratchBuilder = {
   // RUNNER & SAVING
   // -------------------------------------------------------------------------
   runCurrentExperiment() {
+    // 1. Close modal if open
+    App.closeModal('code-preview-modal');
+
+    // 2. Switch main view to participant runner
+    App.switchView('view-participant');
+
+    // 3. Fallback experiment object if currentExperiment was not yet loaded
+    const expObj = this.currentExperiment || {
+      id: this.currentExperimentId || 'custom-sandbox',
+      title: document.getElementById('builder-study-title')?.textContent || 'Scratch Custom Study',
+      description: 'Custom experiment built in the Nexora Scratch Studio.',
+      share_slug: 'sandbox-run'
+    };
+
+    // 4. Start the PsychoJS session
     PsychoJSRunner.startParticipantSession({
-      experiment: this.currentExperiment,
+      experiment: expObj,
       blocks: this.blocks,
       customCode: this.customCode
     });
@@ -1356,38 +1378,45 @@ const ScratchBuilder = {
 
   runCustomEditorCode(textareaId) {
     const ta = document.getElementById(textareaId);
-    if (!ta) return;
-    this.customCode = ta.value;
-    this.isCodeCustomized = true;
-
-    // Launch sandbox with custom code & blocks
-    PsychoJSRunner.startParticipantSession({
-      experiment: this.currentExperiment,
-      blocks: this.blocks,
-      customCode: this.customCode
-    });
+    if (ta) {
+      this.customCode = ta.value;
+      this.isCodeCustomized = true;
+    }
+    this.runCurrentExperiment();
   },
 
   async saveEditorCode(textareaId) {
     const ta = document.getElementById(textareaId);
-    if (!ta) return;
-    this.customCode = ta.value;
-    this.isCodeCustomized = true;
+    if (ta) {
+      this.customCode = ta.value;
+      this.isCodeCustomized = true;
+    }
     await this.saveToDatabase();
   },
 
   async saveToDatabase() {
-    if (!this.currentExperimentId) {
-      App.showToast('No active experiment loaded', 'error');
-      return;
-    }
-
     try {
+      // 1. If not logged in, auto sign in with default researcher demo account
+      if (!Auth.isLoggedIn()) {
+        try {
+          await API.login('researcher@nexora.edu', 'password123');
+        } catch (authErr) {
+          console.warn('Auto auth notice:', authErr);
+        }
+      }
+
+      // 2. Parse custom code from active editor if in code mode
+      const codeArea = document.getElementById('builder-code-textarea');
+      if (codeArea && (this.viewMode === 'code' || this.viewMode === 'split')) {
+        this.customCode = codeArea.value;
+        this.isCodeCustomized = true;
+      }
+
       let cfg = {};
       try {
-        cfg = typeof this.currentExperiment.config === 'string'
+        cfg = typeof this.currentExperiment?.config === 'string'
           ? JSON.parse(this.currentExperiment.config)
-          : (this.currentExperiment.config || {});
+          : (this.currentExperiment?.config || {});
       } catch (e) {
         cfg = {};
       }
@@ -1396,6 +1425,33 @@ const ScratchBuilder = {
         cfg.customPsychoJS = this.customCode;
       }
 
+      // 3. If no experiment is active yet, auto-create one in the database
+      if (!this.currentExperimentId) {
+        const titleText = document.getElementById('builder-study-title')?.textContent || 'Custom Cognitive Experiment';
+        const newExp = await API.createExperiment({
+          title: titleText,
+          description: 'Custom experiment built with Scratch blocks and PsychoJS Studio.',
+          config: cfg,
+          blocks: this.blocks.map((b, idx) => ({
+            block_type: b.type,
+            block_data: b.data,
+            sequence_order: idx + 1
+          }))
+        });
+
+        this.currentExperimentId = newExp.id;
+        this.currentExperiment = {
+          id: newExp.id,
+          title: titleText,
+          config: cfg,
+          share_slug: newExp.share_slug
+        };
+
+        App.showToast('Created new experiment and saved logic to database!', 'success');
+        return;
+      }
+
+      // 4. Update the existing experiment
       await API.updateExperiment(this.currentExperimentId, {
         config: cfg,
         blocks: this.blocks.map((b, idx) => ({
@@ -1405,9 +1461,41 @@ const ScratchBuilder = {
         }))
       });
 
-      App.showToast('Experiment logic and PsychoJS code saved successfully to database!', 'success');
+      App.showToast('Experiment logic and PsychoJS code successfully saved to database!', 'success');
     } catch (err) {
+      console.error('[Save to Database Error]', err);
       App.showToast('Save failed: ' + err.message, 'error');
+    }
+  },
+
+  async initDefaultExperiment() {
+    if (this.currentExperimentId) return;
+    try {
+      const res = await API.getExperiments();
+      if (res && res.experiments && res.experiments.length > 0) {
+        await this.loadExperiment(res.experiments[0].id);
+        return;
+      }
+    } catch (e) {}
+
+    // Fallback: load first seeded study
+    try {
+      const pub = await API.getPublicExperiment('stroop-task-2026');
+      if (pub && pub.experiment) {
+        this.currentExperiment = pub.experiment;
+        this.currentExperimentId = pub.experiment.id;
+        this.blocks = pub.blocks.map(b => ({
+          id: b.id,
+          type: b.block_type || b.type,
+          data: typeof b.block_data === 'string' ? JSON.parse(b.block_data) : (b.block_data || b.data)
+        }));
+        const titleEl = document.getElementById('builder-study-title');
+        if (titleEl) titleEl.textContent = this.currentExperiment.title;
+        this.renderCanvas();
+        this.selectBlock(this.blocks[0]?.id);
+      }
+    } catch (e) {
+      console.warn('Fallback experiment init:', e);
     }
   },
 

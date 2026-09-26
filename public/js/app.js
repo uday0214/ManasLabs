@@ -127,6 +127,10 @@ const App = {
       this.loadParticipantHome();
     } else if (viewId === 'view-student-portal') {
       StudentPortal.init();
+    } else if (viewId === 'view-builder') {
+      if (!ScratchBuilder.currentExperimentId) {
+        ScratchBuilder.initDefaultExperiment();
+      }
     }
   },
 
@@ -163,7 +167,12 @@ const App = {
             </span>
           </td>
           <td>
-            <strong>${e.completed_participants || 0}</strong> completed
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              <span class="badge badge-active" style="font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700;">
+                ${e.completed_participants || 0}
+              </span>
+              <span style="font-size: 0.85rem; color: var(--text-secondary);">completed</span>
+            </div>
           </td>
           <td>
             <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan);">
@@ -171,11 +180,11 @@ const App = {
             </span>
             <button class="btn btn-secondary btn-sm" style="margin-left: 0.4rem; padding: 0.15rem 0.4rem;" onclick="App.copyShareLink('${e.share_slug}')" title="Copy Participant Link">📋</button>
           </td>
-          <td style="text-align: right;">
-            <button class="btn btn-secondary btn-sm" onclick="App.openInBuilder('${e.id}')">🧩 Blocks</button>
-            <button class="btn btn-accent btn-sm" onclick="App.launchParticipantStudy('${e.share_slug}')">▶ Run</button>
-            <button class="btn btn-secondary btn-sm" onclick="App.viewExperimentAnalytics('${e.id}')">📊 Data</button>
-            <button class="btn btn-danger btn-sm" onclick="App.deleteExperiment('${e.id}')">🗑</button>
+          <td style="text-align: right; white-space: nowrap;">
+            <button class="btn btn-secondary btn-sm" onclick="App.openInBuilder('${e.id}')" title="Open in Scratch blocks builder">🧩 Blocks</button>
+            <button class="btn btn-accent btn-sm" onclick="App.launchParticipantStudy('${e.share_slug}')" title="Run study in PsychoJS runner">▶ Run</button>
+            <button class="btn btn-secondary btn-sm" onclick="App.viewExperimentAnalytics('${e.id}')" title="Access study dataset and participant telemetry">📊 Data (${e.completed_participants || 0})</button>
+            <button class="btn btn-danger btn-sm" onclick="App.deleteExperiment('${e.id}')" title="Delete experiment">🗑</button>
           </td>
         `;
         tableBody.appendChild(tr);
@@ -284,12 +293,13 @@ const App = {
   },
 
   launchParticipantStudy(slug) {
-    window.location.hash = `#run/${slug}`;
+    this.returnViewAfterParticipant = 'view-researcher';
     this.switchView('view-participant');
-    PsychoJSRunner.startParticipantSession(slug);
+    PsychoJSRunner.startParticipantSession(slug, { returnView: 'view-researcher' });
   },
 
   openInBuilder(expId) {
+    ScratchBuilder.currentExperimentId = expId;
     this.switchView('view-builder');
     ScratchBuilder.loadExperiment(expId);
   },
@@ -316,21 +326,8 @@ const App = {
 
   viewExperimentAnalytics(id) {
     this.switchView('view-analytics');
-    API.getExperimentAnalytics(id).then(res => {
-      if (res.hasData) {
-        Analytics.renderMetricCards({
-          meanRt: `${res.stats.meanRt} ms`,
-          medianRt: `${res.stats.medianRt} ms`,
-          trimmedMean: `${res.stats.trimmedMean} ms`,
-          stdev: `±${res.stats.stdev} ms`,
-          accuracy: `${res.stats.accuracy}%`,
-          effectSize: `Live Sample`
-        });
-        const rts = res.rawTrials.map(t => t.response_time_ms);
-        Analytics.renderHistogram('chart-rt-dist', rts, `Live Experiment RTs (N=${res.participants})`);
-      } else {
-        this.showToast(res.message, 'info');
-      }
+    Analytics.loadDatasetsList(id).then(() => {
+      Analytics.loadLiveExperiment(id);
     });
   },
 
