@@ -102,7 +102,7 @@
       <div class="hero-wrapper">
         <span class="hero-pill">⚡ High-Precision Cognitive Science in the Browser</span>
         <h1 class="hero-title">
-          Build & Deploy <span>Millisecond-Accurate</span> Behavioral Experiments
+          Build & Deploy <span class="text-highlight text-highlight-cyan">Millisecond-Accurate</span> Behavioral Experiments
         </h1>
         <p class="hero-desc" style="max-width: 680px; margin: 0 auto 2rem; font-size: 1.1rem;">
           Nexora empowers researchers to construct cognitive paradigms with no-code Scratch blocks, deploy frame-synchronized PsychoJS studies, and model behavioral latency in real time.
@@ -118,220 +118,115 @@
         </div>
 
         <!-- ===================================================================
-             FULL-WIDTH STACKED RECTANGLE FEATURE WIDGETS (LIQUID GLASS)
+             STREAMLINED MINIMAL FEATURE CARDS (GRAY TONE GRADIENTS & HIGHLIGHTS)
              =================================================================== -->
         <div class="features-stack">
           
-          <!-- Rectangular Widget 1: Scratch-Style Visual Builder -->
+          <!-- Feature 1: Scratch-Style Visual Builder -->
           <div class="feature-stack-rect liquid-glass">
-            <div class="feature-rect-content">
-              <span class="feature-rect-pill" style="background: rgba(254, 240, 138, 0.45); color: #854d0e; border: 1px solid #facc15;">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 0.5rem;">
+              <span class="feature-rect-pill" style="background: rgba(254, 240, 138, 0.35); color: #854d0e; border: 1px solid #facc15;">
                 🧩 NO-CODE LOGIC PROGRAMMING
               </span>
-              <h2 class="feature-rect-title">Scratch-Style Visual Block Experiment Builder</h2>
-              <p class="feature-rect-desc">
-                Design sophisticated cognitive and behavioral paradigms without writing a single line of code. Assemble nested trial loops, fixation cross durations, visual/auditory stimuli, and response windows using interlocking visual blocks with real-time AST syntax validation and zero coding barriers.
-              </p>
-              <div class="feature-tags-list">
-                <span class="feature-tag">Drag & Drop Blocks</span>
-                <span class="feature-tag">Interlocking Snap-to-Grid</span>
-                <span class="feature-tag">Trial Loop Randomization</span>
-                <span class="feature-tag">PsychoJS AST Transpiler</span>
-                <span class="feature-tag">Live Parameter Inspector</span>
-              </div>
-              <div>
-                <button class="btn btn-primary" onclick="App.switchView('view-builder')">
-                  Launch Scratch Builder &rarr;
-                </button>
-              </div>
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono);">AST GENERATOR</span>
             </div>
-
-            <div class="feature-rect-visual">
-              <div class="rect-visual-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 0.25rem;">
-                  <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Compiled Block Stack</span>
-                  <span class="badge badge-active" style="font-size: 0.68rem;">READY</span>
-                </div>
-                <!-- Mini Interlocking Blocks Preview -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <div class="placed-block block-event" style="font-size: 0.78rem; padding: 0.5rem 0.75rem; margin: 0;">
-                    <span>When Experiment Starts</span>
-                    <span style="font-size: 0.68rem; opacity: 0.8;">Setup</span>
-                  </div>
-                  <div class="placed-block block-stimulus" style="font-size: 0.78rem; padding: 0.5rem 0.75rem; margin: 0;">
-                    <span>Show Fixation Cross [+]</span>
-                    <span style="font-size: 0.68rem; opacity: 0.8;">500ms</span>
-                  </div>
-                  <div class="placed-block block-stimulus" style="font-size: 0.78rem; padding: 0.5rem 0.75rem; margin: 0;">
-                    <span>Display Word Stimulus "RED"</span>
-                    <span style="font-size: 0.68rem; opacity: 0.8;">Ink: Red</span>
-                  </div>
-                  <div class="placed-block block-response" style="font-size: 0.78rem; padding: 0.5rem 0.75rem; margin: 0;">
-                    <span>Listen for Keypress [R, G, B, Y]</span>
-                    <span style="font-size: 0.68rem; opacity: 0.8;">Timeout: 2000ms</span>
-                  </div>
-                  <div class="placed-block block-logic" style="font-size: 0.78rem; padding: 0.5rem 0.75rem; margin: 0;">
-                    <span>Verify Accuracy & Record RT</span>
-                    <span style="font-size: 0.68rem; opacity: 0.8;">Correct: 'r'</span>
-                  </div>
-                </div>
-              </div>
+            <h2 class="feature-rect-title">
+              Scratch-Style <span class="text-highlight text-highlight-amber">Visual Block</span> Experiment Builder
+            </h2>
+            <p class="feature-rect-desc">
+              Design sophisticated cognitive and behavioral paradigms without writing code. Assemble nested trial loops, fixation crosses, visual stimuli, and response windows using interlocking visual blocks with real-time AST syntax validation.
+            </p>
+            <div class="feature-tags-list">
+              <span class="feature-tag">Drag & Drop AST</span>
+              <span class="feature-tag">Snap-to-Grid Logic</span>
+              <span class="feature-tag">Trial Randomization</span>
+              <span class="feature-tag">Zero Coding Barriers</span>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="App.switchView('view-builder')">
+                Launch Scratch Builder &rarr;
+              </button>
             </div>
           </div>
 
-          <!-- Rectangular Widget 2: PsychoJS Timing Engine -->
+          <!-- Feature 2: PsychoJS Timing Engine -->
           <div class="feature-stack-rect liquid-glass">
-            <div class="feature-rect-content">
-              <span class="feature-rect-pill" style="background: rgba(186, 230, 253, 0.45); color: #0369a1; border: 1px solid #7dd3fc;">
-                ⏱️ SUB-MILLISECOND FRAME SYNCHRONIZATION
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 0.5rem;">
+              <span class="feature-rect-pill" style="background: rgba(186, 230, 253, 0.35); color: #0369a1; border: 1px solid #7dd3fc;">
+                ⏱️ SUB-MILLISECOND TIMING
               </span>
-              <h2 class="feature-rect-title">PsychoJS High-Precision Experiment Runtime</h2>
-              <p class="feature-rect-desc">
-                Replicate laboratory-grade tachistoscopic accuracy directly in the web browser. The PsychoJS engine synchronizes rendering to your monitor's vertical refresh cycle (60Hz, 120Hz, 144Hz) using requestAnimationFrame, double-buffered WebGL pipelines, and microsecond hardware clocks via performance.now().
-              </p>
-              <div class="feature-tags-list">
-                <span class="feature-tag">V-Sync Synchronization</span>
-                <span class="feature-tag">Microsecond Hardware Clock</span>
-                <span class="feature-tag">60Hz / 120Hz / 144Hz Calibration</span>
-                <span class="feature-tag">Low-Latency Keydown Hooks</span>
-                <span class="feature-tag">WebAudio Sound Synthesizer</span>
-              </div>
-              <div>
-                <button class="btn btn-accent" onclick="App.launchParticipantStudy('stroop-task-2026')">
-                  Run Calibrated Test Session &rarr;
-                </button>
-              </div>
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--accent-green); font-family: var(--font-mono);">● V-SYNC LOCKED</span>
             </div>
-
-            <div class="feature-rect-visual">
-              <div class="rect-visual-card" style="font-family: var(--font-mono);">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 0.25rem;">
-                  <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-sans);">Timing Telemetry Diagnostics</span>
-                  <span style="color: var(--accent-green); font-size: 0.72rem; font-weight: 700;">● V-SYNC LOCKED</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.78rem;">
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.6rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Refresh Rate</div>
-                    <div style="font-size: 1.15rem; font-weight: 800; color: #0284c7;">120.0 Hz</div>
-                  </div>
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.6rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Frame Jitter</div>
-                    <div style="font-size: 1.15rem; font-weight: 800; color: #059669;">&lt; 1.4 ms</div>
-                  </div>
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.6rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Clock Source</div>
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">performance.now()</div>
-                  </div>
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.6rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Rendering Buffer</div>
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">WebGL / 2D Canvas</div>
-                  </div>
-                </div>
-              </div>
+            <h2 class="feature-rect-title">
+              PsychoJS <span class="text-highlight text-highlight-cyan">High-Precision</span> Experiment Runtime
+            </h2>
+            <p class="feature-rect-desc">
+              Replicate laboratory-grade tachistoscopic accuracy in the browser. Synchronizes rendering to your monitor's vertical refresh cycle (60Hz, 120Hz, 144Hz) using double-buffered WebGL pipelines and microsecond hardware clocks via <code>performance.now()</code>.
+            </p>
+            <div class="feature-tags-list">
+              <span class="feature-tag">V-Sync Frame Lock</span>
+              <span class="feature-tag">Hardware Clock</span>
+              <span class="feature-tag">60/120/144Hz Auto-Calibration</span>
+              <span class="feature-tag">WebAudio Tone Feedback</span>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="App.launchParticipantStudy('stroop-task-2026')">
+                Run Calibrated Test Session &rarr;
+              </button>
             </div>
           </div>
 
-          <!-- Rectangular Widget 3: IRB & GDPR Participant Pipeline -->
+          <!-- Feature 3: IRB & GDPR Participant Pipeline -->
           <div class="feature-stack-rect liquid-glass">
-            <div class="feature-rect-content">
-              <span class="feature-rect-pill" style="background: rgba(187, 247, 208, 0.45); color: #166534; border: 1px solid #86efac;">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 0.5rem;">
+              <span class="feature-rect-pill" style="background: rgba(187, 247, 208, 0.35); color: #166534; border: 1px solid #86efac;">
                 🔒 ETHICAL PROTOCOL & TELEMETRY
               </span>
-              <h2 class="feature-rect-title">Secure & Anonymous Participant Pipeline</h2>
-              <p class="feature-rect-desc">
-                Engineered from the ground up to satisfy stringent Institutional Review Board (IRB) and GDPR Article 7 compliance requirements. Features electronic informed consent gates, zero storage of PII, cryptographic token hashing, display calibration auditing, and instant completion verification codes.
-              </p>
-              <div class="feature-tags-list">
-                <span class="feature-tag">Zero PII Storage</span>
-                <span class="feature-tag">Cryptographic Token Hashing</span>
-                <span class="feature-tag">Electronic IRB e-Consent</span>
-                <span class="feature-tag">Prolific / MTurk Verification</span>
-                <span class="feature-tag">BIDS & CSV Data Pipeline</span>
-              </div>
-              <div>
-                <button class="btn btn-secondary" onclick="App.switchView('view-participant')">
-                  Open Participant Portal &rarr;
-                </button>
-              </div>
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono);">IRB COMPLIANT</span>
             </div>
-
-            <div class="feature-rect-visual">
-              <div class="rect-visual-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 0.25rem;">
-                  <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Compliance Verification</span>
-                  <span class="badge badge-active" style="font-size: 0.68rem;">ETHICS VERIFIED</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem;">
-                  <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9;">
-                    <span style="color: var(--text-secondary);">Subject Token:</span>
-                    <span style="font-family: var(--font-mono); font-weight: 700; color: #0284c7;">SUBJ_84F9A2</span>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9;">
-                    <span style="color: var(--text-secondary);">IRB Protocol:</span>
-                    <span style="font-weight: 600;">#2026-CS-09 (e-Signed)</span>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9;">
-                    <span style="color: var(--text-secondary);">PII Handling:</span>
-                    <span style="color: #059669; font-weight: 600;">Zero PII Stored</span>
-                  </div>
-                  <div style="display: flex; justify-content: space-between; padding: 0.4rem 0;">
-                    <span style="color: var(--text-secondary);">Completion Token:</span>
-                    <span style="font-family: var(--font-mono); font-weight: 800; color: #059669;">NX-STR89B</span>
-                  </div>
-                </div>
-              </div>
+            <h2 class="feature-rect-title">
+              Secure & Anonymous <span class="text-highlight text-highlight-green">Participant Pipeline</span>
+            </h2>
+            <p class="feature-rect-desc">
+              Satisfies Institutional Review Board (IRB) and GDPR compliance requirements. Features electronic informed consent gates, zero storage of PII, cryptographic token hashing, display calibration auditing, and instant completion verification codes.
+            </p>
+            <div class="feature-tags-list">
+              <span class="feature-tag">Zero PII Collected</span>
+              <span class="feature-tag">Cryptographic ID Tokens</span>
+              <span class="feature-tag">Electronic e-Consent</span>
+              <span class="feature-tag">Prolific / MTurk Codes</span>
+            </div>
+            <div>
+              <button class="btn btn-secondary" onclick="App.switchView('view-participant')">
+                Open Participant Portal &rarr;
+              </button>
             </div>
           </div>
 
-          <!-- Rectangular Widget 4: Mathematical Analytics Suite -->
+          <!-- Feature 4: Mathematical Analytics Suite -->
           <div class="feature-stack-rect liquid-glass">
-            <div class="feature-rect-content">
-              <span class="feature-rect-pill" style="background: rgba(221, 214, 254, 0.45); color: #5b21b6; border: 1px solid #c4b5fd;">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 0.5rem;">
+              <span class="feature-rect-pill" style="background: rgba(221, 214, 254, 0.35); color: #5b21b6; border: 1px solid #c4b5fd;">
                 📊 MATHEMATICAL COGNITIVE MODELING
               </span>
-              <h2 class="feature-rect-title">Mathematical Analytics & Psychometrics Suite</h2>
-              <p class="feature-rect-desc">
-                Transform raw millisecond latency points into publication-ready scientific models in real time. Features Tukey's 1.5× IQR outlier trimming, Kernel Density Estimation, theoretical Ex-Gaussian latency tail modeling, speed-accuracy trade-off linear regression, and 4-parameter logistic sigmoid psychometric curves.
-              </p>
-              <div class="feature-tags-list">
-                <span class="feature-tag">Ex-Gaussian Latency PDF</span>
-                <span class="feature-tag">Tukey 1.5× IQR Filter</span>
-                <span class="feature-tag">Speed-Accuracy Trade-off</span>
-                <span class="feature-tag">Weibull Psychometrics Fit</span>
-                <span class="feature-tag">Cohen's d Effect Size</span>
-              </div>
-              <div>
-                <button class="btn btn-secondary" onclick="App.switchView('view-analytics')">
-                  Explore Math Analytics & Graphs &rarr;
-                </button>
-              </div>
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono);">PSYCHOMETRIC SUITE</span>
             </div>
-
-            <div class="feature-rect-visual">
-              <div class="rect-visual-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 0.25rem;">
-                  <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Mathematical Parameters</span>
-                  <span class="badge" style="background: #f1f5f9; color: var(--text-secondary); font-size: 0.68rem;">N=120 SAMPLES</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem;">Trimmed Mean RT</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-mono);">531 ms</div>
-                  </div>
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem;">Interquartile Range</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #0284c7; font-family: var(--font-mono);">92 ms</div>
-                  </div>
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem;">Effect Size (Cohen's d)</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #e11d48; font-family: var(--font-mono);">d = 1.12</div>
-                  </div>
-                  <div style="background: rgba(255,255,255,0.7); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <div style="color: var(--text-muted); font-size: 0.68rem;">Sensitivity Index (d')</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #059669; font-family: var(--font-mono);">d' = 2.45</div>
-                  </div>
-                </div>
-              </div>
+            <h2 class="feature-rect-title">
+              Mathematical Analytics & <span class="text-highlight text-highlight-purple">Psychometrics Suite</span>
+            </h2>
+            <p class="feature-rect-desc">
+              Transform raw millisecond latency vectors into publication-ready scientific models. Features Tukey's 1.5× IQR outlier trimming, Kernel Density Estimation, theoretical Ex-Gaussian latency tail modeling, speed-accuracy linear regression, and logistic psychometric curves.
+            </p>
+            <div class="feature-tags-list">
+              <span class="feature-tag">Ex-Gaussian RT Fitting</span>
+              <span class="feature-tag">Tukey 1.5× IQR Outlier Filter</span>
+              <span class="feature-tag">Speed-Accuracy Trade-off</span>
+              <span class="feature-tag">Cohen's d Effect Size</span>
+            </div>
+            <div>
+              <button class="btn btn-secondary" onclick="App.switchView('view-analytics')">
+                Explore Math Analytics & Graphs &rarr;
+              </button>
             </div>
           </div>
 
@@ -351,7 +246,7 @@
             🔐 UNIFIED ACCESS GATEWAY
           </span>
           <h1 id="auth-gateway-title" style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: -0.02em;">
-            Choose Your Workspace
+            Choose Your <span class="text-highlight text-highlight-cyan">Workspace</span>
           </h1>
           <p id="auth-gateway-subtitle" style="color: var(--text-secondary); max-width: 620px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6;">
             Select whether you are conducting experiments as a Research Scientist or participating in studies as a Student / Participant.
@@ -648,7 +543,7 @@
     <section class="view-section" id="view-researcher">
       <div class="dashboard-header">
         <div class="dashboard-title">
-          <h2>Scientist Experiment Laboratory</h2>
+          <h2>Scientist <span class="text-highlight text-highlight-cyan">Experiment Laboratory</span></h2>
           <p>Manage, deploy, and inspect your active behavioral studies</p>
         </div>
         <button class="btn btn-primary" id="btn-open-create-modal">
@@ -700,18 +595,35 @@
     <!-- ---------------------------------------------------------------------
          VIEW 3: SCRATCH-STYLE VISUAL EXPERIMENT BUILDER
          --------------------------------------------------------------------- -->
+    <!-- ---------------------------------------------------------------------
+         VIEW 3: SCRATCH-STYLE VISUAL EXPERIMENT BUILDER & PSYCHOJS CODE STUDIO
+         --------------------------------------------------------------------- -->
     <section class="view-section" id="view-builder">
       <div class="canvas-header-bar">
         <div style="display: flex; align-items: center; gap: 0.75rem;">
           <button class="btn btn-secondary btn-sm" onclick="App.switchView('view-researcher')">&larr; Back to Lab</button>
-          <span style="font-weight: 700; color: #fff;" id="builder-study-title">Stroop Color-Word Cognitive Interference</span>
+          <span style="font-weight: 800; color: var(--text-primary); font-size: 1.05rem;" id="builder-study-title">Stroop Color-Word Cognitive Interference</span>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button class="btn btn-secondary btn-sm" onclick="ScratchBuilder.showCodeModal()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-            View PsychoJS Script
+
+        <!-- Mode Switcher Tabs -->
+        <div class="view-mode-tabs" id="builder-mode-tabs">
+          <button class="view-tab-btn active" id="tab-mode-blocks" onclick="ScratchBuilder.setViewMode('blocks')">
+            🧩 Scratch Blocks
           </button>
-          <button class="btn btn-accent btn-sm" onclick="PsychoJSRunner.startParticipantSession({ experiment: ScratchBuilder.currentExperiment, blocks: ScratchBuilder.blocks })">
+          <button class="view-tab-btn" id="tab-mode-code" onclick="ScratchBuilder.setViewMode('code')">
+            ⚡ Direct PsychoJS Editor
+          </button>
+          <button class="view-tab-btn" id="tab-mode-split" onclick="ScratchBuilder.setViewMode('split')">
+            ◫ Split Studio
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-secondary btn-sm" onclick="ScratchBuilder.showCodeModal()" title="Open Expanded Code Modal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Code Modal
+          </button>
+          <button class="btn btn-accent btn-sm" onclick="ScratchBuilder.runCurrentExperiment()">
             ▶ Test Run Sandbox
           </button>
           <button class="btn btn-primary btn-sm" onclick="ScratchBuilder.saveToDatabase()">
@@ -720,14 +632,14 @@
         </div>
       </div>
 
-      <div class="builder-layout" style="margin-top: 1rem;">
+      <div class="builder-layout mode-blocks" id="builder-layout-container" style="margin-top: 1rem;">
         <!-- Left: Scratch Palette -->
-        <div class="builder-panel">
+        <div class="builder-panel" id="builder-palette-panel">
           <div class="panel-header">
             <div class="panel-title">
-              <span>🧩 Block Palette</span>
+              <span>🧩 Advanced Blocks Palette</span>
             </div>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Click or Drag</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">20+ Cognitive Components</span>
           </div>
           <div class="panel-body" id="palette-blocks-list">
             <!-- Injected via ScratchBuilder.initPalette() -->
@@ -735,13 +647,13 @@
         </div>
 
         <!-- Center: Interactive Scratch Interlocking Canvas -->
-        <div class="builder-panel">
+        <div class="builder-panel" id="builder-canvas-panel">
           <div class="panel-header">
             <div class="panel-title">
-              <span>📐 Visual Logic Flow (Compiled Sequence)</span>
+              <span>📐 Visual Logic Flow (Execution Pipeline)</span>
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">
-              Interlocking Execution Blocks
+            <div style="font-size: 0.8rem; color: var(--text-muted);" id="builder-canvas-block-count">
+              Interlocking Blocks
             </div>
           </div>
           <div class="canvas-workspace" id="canvas-drop-area">
@@ -752,17 +664,58 @@
         </div>
 
         <!-- Right: Parameter Inspector Panel -->
-        <div class="builder-panel">
+        <div class="builder-panel" id="builder-inspector-panel">
           <div class="panel-header">
             <div class="panel-title">
               <span>⚙️ Block Inspector</span>
             </div>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Live Config</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Live Scientific Parameters</span>
           </div>
           <div class="panel-body" id="inspector-content">
             <!-- Injected via ScratchBuilder.renderInspector() -->
           </div>
         </div>
+
+        <!-- Direct PsychoJS Code Editor Panel (Visible in Code and Split Modes) -->
+        <div class="builder-code-editor-panel" id="builder-code-panel" style="display: none;">
+          <div class="code-editor-toolbar">
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+              <span style="color: #38bdf8; font-weight: 800; font-size: 0.85rem; font-family: var(--font-mono);">JS / PsychoJS 2024.1</span>
+              <span class="badge" id="editor-syntax-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.7rem; font-family: var(--font-mono);">
+                SYNTAX VALID
+              </span>
+            </div>
+            <div style="display: flex; gap: 0.4rem; align-items: center;">
+              <button class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.08); color: #e2e8f0; border-color: #334155;" onclick="ScratchBuilder.recompileCodeFromBlocks()" title="Recompile from Scratch blocks">
+                🔄 Recompile Blocks
+              </button>
+              <button class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.08); color: #e2e8f0; border-color: #334155;" onclick="ScratchBuilder.syncEditorCodeToBlocks('builder-code-textarea')" title="Parse code into visual Scratch blocks">
+                🧩 Code &rarr; Blocks
+              </button>
+              <button class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.08); color: #e2e8f0; border-color: #334155;" onclick="ScratchBuilder.formatEditorCode('builder-code-textarea')" title="Format Script Indentation">
+                🪄 Format
+              </button>
+              <button class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.08); color: #e2e8f0; border-color: #334155;" onclick="ScratchBuilder.copyCodeFromEditor('builder-code-textarea')" title="Copy to Clipboard">
+                📋 Copy
+              </button>
+              <button class="btn btn-accent btn-sm" onclick="ScratchBuilder.runCustomEditorCode('builder-code-textarea')" title="Run edited script in sandbox">
+                ▶ Run Script
+              </button>
+            </div>
+          </div>
+
+          <div class="code-editor-main">
+            <div class="code-line-numbers" id="builder-code-linenums">1</div>
+            <textarea class="code-editor-textarea" id="builder-code-textarea" spellcheck="false" placeholder="// Direct PsychoJS engine script..."></textarea>
+          </div>
+
+          <div class="code-editor-statusbar">
+            <span id="editor-status-cursor">Line: 1, Col: 1</span>
+            <span style="color: #64748b;">Sub-millisecond V-Sync Precision Engine &bull; Auto-synchronized</span>
+            <span id="editor-status-size">0 chars</span>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -783,7 +736,7 @@
     <section class="view-section" id="view-analytics">
       <div class="analytics-header">
         <div>
-          <h2 style="font-size: 1.8rem; font-weight: 800;" id="analytics-study-title">Mathematical Analytics & Data Modeling</h2>
+          <h2 style="font-size: 1.8rem; font-weight: 800;" id="analytics-study-title">Mathematical <span class="text-highlight text-highlight-purple">Analytics & Data Modeling</span></h2>
           <p style="color: var(--text-secondary);" id="analytics-study-desc">
             Interactive cognitive latency distributions, ex-Gaussian curve fitting, and psychometric models
           </p>
@@ -797,7 +750,7 @@
 
       <!-- Dataset Picker -->
       <div class="dataset-picker-bar">
-        <label style="font-weight: 700; color: #fff; font-size: 0.9rem;">Select Study Dataset:</label>
+        <label style="font-weight: 800; color: var(--text-primary); font-size: 0.9rem;">Select Study Dataset:</label>
         <select id="analytics-dataset-select">
           <!-- Populated by Analytics.loadDatasetsList() -->
         </select>
@@ -868,18 +821,18 @@
          --------------------------------------------------------------------- -->
     <section class="view-section" id="view-student-portal">
       <!-- Portal Header -->
-      <div class="dashboard-header" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(79, 70, 229, 0.1)); padding: 1.75rem; border-radius: var(--radius-lg); border: 1px solid rgba(6, 182, 212, 0.25); margin-bottom: 2rem;">
+      <div class="dashboard-header" style="background: var(--grad-gray-card); padding: 1.75rem 2rem; border-radius: var(--radius-xl); border: 1px solid var(--border-distinct); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
         <div>
-          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
             <span class="hero-pill" style="margin-bottom: 0;">🎓 Participant Interface</span>
-            <span class="badge" id="student-participant-id-badge" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.4); font-family: var(--font-mono); font-size: 0.85rem;">
+            <span class="badge" id="student-participant-id-badge" style="background: rgba(8, 145, 178, 0.1); color: #0891b2; border: 1px solid rgba(8, 145, 178, 0.3); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;">
               ID: STUDENT_001
             </span>
           </div>
-          <h2 style="font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em;">
-            Welcome back, <span id="student-greeting-name" style="color: #fff;">Participant</span>!
+          <h2 style="font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary);">
+            Welcome back, <span id="student-greeting-name" class="text-highlight text-highlight-cyan">Participant</span>!
           </h2>
-          <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
             Take assigned psychological experiments, track your testing history, and manage your participant demographics.
           </p>
         </div>
@@ -952,11 +905,11 @@
       <!-- Section 3: Profile & Demographics Form -->
       <div id="student-profile-section" style="margin-bottom: 3rem;">
         <div style="margin-bottom: 1.25rem;">
-          <h3 style="font-size: 1.35rem; font-weight: 700;">My Participant Details & Demographics</h3>
+          <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">My Participant Details & Demographics</h3>
           <p style="color: var(--text-secondary); font-size: 0.88rem;">Keep your participant profile and baseline research variables up to date</p>
         </div>
 
-        <div style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem;">
+        <div style="background: var(--grad-gray-card); border: 1px solid var(--border-distinct); border-radius: var(--radius-xl); padding: 2.25rem; box-shadow: var(--shadow-sm);">
           <form id="form-student-profile">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
               <div class="form-group">
@@ -1221,22 +1174,53 @@
   </div>
 
   <!-- =========================================================================
-       MODAL 3: PSYCHOJS CODE EXPORT PREVIEW
+       MODAL 3: DIRECT PSYCHOJS CODE STUDIO MODAL
        ========================================================================= -->
   <div class="modal-overlay" id="code-preview-modal" style="display: none;">
-    <div class="modal-card" style="max-width: 720px;">
+    <div class="modal-card" style="max-width: 860px; width: 92vw;">
       <div class="modal-header">
-        <div style="font-weight: 700; color: #fff;">Compiled PsychoJS Runtime Specification</div>
+        <div style="font-weight: 800; color: var(--text-primary); font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚡</span>
+          <span>PsychoJS Script Studio & Engine Compiler</span>
+        </div>
         <button class="btn btn-secondary btn-sm modal-close">&times;</button>
       </div>
-      <div class="modal-body">
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-          This code is automatically generated from your visual Scratch blocks and executed by the PsychoJS browser runtime.
-        </p>
-        <pre class="code-preview" id="code-preview-content"></pre>
+      <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+            Directly edit this PsychoJS script. You can test run your changes in the sandbox or compile them back into visual Scratch blocks.
+          </p>
+          <span id="modal-syntax-badge" class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-family: var(--font-mono); font-size: 0.72rem;">
+            SYNTAX VALID
+          </span>
+        </div>
+        <div class="code-editor-container" style="position: relative; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-distinct);">
+          <textarea id="code-preview-content" spellcheck="false" style="font-family: var(--font-mono); font-size: 0.86rem; background: #080d1a; color: #f8fafc; padding: 1.25rem; line-height: 1.6; border: none; width: 100%; min-height: 420px; max-height: 60vh; resize: vertical; tab-size: 2; outline: none;"></textarea>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="ScratchBuilder.formatEditorCode('code-preview-content')">
+              🪄 Format Script
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="ScratchBuilder.syncEditorCodeToBlocks('code-preview-content')">
+              🧩 Sync Code &rarr; Blocks
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="ScratchBuilder.copyCodeFromEditor('code-preview-content')">
+              📋 Copy Code
+            </button>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-accent btn-sm" onclick="ScratchBuilder.runCustomEditorCode('code-preview-content')">
+              ▶ Test Run Code in PsychoJS
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="ScratchBuilder.saveEditorCode('code-preview-content')">
+              💾 Save to Experiment
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary modal-close">Close</button>
+      <div class="modal-footer" style="background: var(--grad-gray-subtle); padding: 0.65rem 1.5rem; justify-content: flex-end;">
+        <button class="btn btn-secondary btn-sm modal-close">Close Editor</button>
       </div>
     </div>
   </div>

@@ -154,8 +154,8 @@ const App = {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
-            <div style="font-weight: 700; color: #fff;">${this.escape(e.title)}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">${e.description ? this.escape(e.description.slice(0, 75)) + '...' : 'No description'}</div>
+            <div style="font-weight: 800; color: var(--text-primary); font-size: 1.05rem;">${this.escape(e.title)}</div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px;">${e.description ? this.escape(e.description.slice(0, 90)) + '...' : 'No description'}</div>
           </td>
           <td>
             <span class="badge ${e.status === 'active' ? 'badge-active' : 'badge-draft'}">
@@ -189,47 +189,98 @@ const App = {
     const container = document.getElementById('participant-portal-card');
     if (!container) return;
 
-    // Load active studies from public API
     container.innerHTML = `
-      <div style="max-width: 650px; margin: 0 auto; text-align: center; padding: 1.5rem 0;">
+      <div style="max-width: 820px; margin: 0 auto; text-align: center; padding: 1.5rem 0;">
         <span class="hero-pill">Cognitive Science Volunteer Portal</span>
-        <h2 style="font-size: 2rem; font-weight: 800; margin: 0.5rem 0 1rem;">Participate in Behavioral Research</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+        <h2 style="font-size: 2.2rem; font-weight: 800; margin: 0.5rem 0 1rem; color: var(--text-primary); letter-spacing: -0.02em;">
+          Participate in Behavioral Research
+        </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; max-width: 680px; margin-left: auto; margin-right: auto; font-size: 1.05rem;">
           Contribute to cutting-edge cognitive psychology studies from your web browser. 
           All experiments adhere to rigorous IRB ethical guidelines and run on our high-precision PsychoJS engine.
         </p>
 
-        <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; text-align: left; margin-bottom: 2rem;">
-          <h4 style="margin-bottom: 1rem; color: #fff;">Select an Active Study:</h4>
-          
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-weight: 700; color: #fff;">Stroop Color-Word Interference Study</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Est. duration: 3 mins • Physical keyboard required</div>
-              </div>
-              <button class="btn btn-primary btn-sm" onclick="App.launchParticipantStudy('stroop-task-2026')">
-                Join Study &rarr;
-              </button>
+        <div class="liquid-glass" style="padding: 1.75rem 2rem; text-align: left; margin-bottom: 2rem; border-radius: var(--radius-xl);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h4 style="margin: 0; color: var(--text-primary); font-size: 1.25rem; font-weight: 800;">
+                All Available Cognitive Science Experiments
+              </h4>
+              <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">
+                22 standardized paradigms calibrated for millisecond V-Sync execution
+              </p>
             </div>
-
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-weight: 700; color: #fff;">Shepard-Metzler Mental Rotation Paradigm</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Est. duration: 4 mins • 3D spatial transformation test</div>
-              </div>
-              <button class="btn btn-primary btn-sm" onclick="App.launchParticipantStudy('mental-rotation-2026')">
-                Join Study &rarr;
-              </button>
+            <span class="badge badge-active" style="padding: 0.4rem 0.85rem; font-size: 0.75rem;">
+              ⚡ 22 ACTIVE STUDIES
+            </span>
+          </div>
+          
+          <div id="participant-studies-list" style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 540px; overflow-y: auto; padding-right: 0.5rem;">
+            <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              Loading experimental paradigms...
             </div>
           </div>
         </div>
 
-        <div style="font-size: 0.82rem; color: var(--text-muted);">
-          🔒 Anonymous & Encrypted • No tracking cookies • Instant Prolific / MTurk credit tokens
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          🔒 Anonymous & Encrypted &bull; No tracking cookies &bull; Sub-millisecond V-Sync precision &bull; Instant Prolific / MTurk credit tokens
         </div>
       </div>
     `;
+
+    try {
+      const res = await API.getAvailableTests();
+      const listEl = document.getElementById('participant-studies-list');
+      if (!listEl) return;
+
+      if (!res.experiments || res.experiments.length === 0) {
+        listEl.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No active studies found.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = '';
+      res.experiments.forEach((e, idx) => {
+        const item = document.createElement('div');
+        item.style.cssText = 'background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(226, 232, 240, 0.9); border-radius: var(--radius-md); padding: 1.1rem 1.35rem; display: flex; justify-content: space-between; align-items: center; gap: 1.25rem; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;';
+        item.onmouseenter = () => {
+          item.style.transform = 'translateY(-1px)';
+          item.style.borderColor = 'var(--primary)';
+          item.style.boxShadow = '0 6px 16px -4px rgba(15, 23, 42, 0.08)';
+        };
+        item.onmouseleave = () => {
+          item.style.transform = 'translateY(0)';
+          item.style.borderColor = 'rgba(226, 232, 240, 0.9)';
+          item.style.boxShadow = 'none';
+        };
+
+        item.innerHTML = `
+          <div style="flex-grow: 1;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span class="badge" style="background: rgba(99, 102, 241, 0.12); color: var(--primary); font-size: 0.7rem; font-weight: 800;">
+                #${idx + 1}
+              </span>
+              <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">
+                Est. 2-4 mins
+              </span>
+            </div>
+            <div style="font-weight: 800; color: var(--text-primary); font-size: 1.05rem;">
+              ${this.escape(e.title)}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem; line-height: 1.5;">
+              ${this.escape(e.description || '')}
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="App.launchParticipantStudy('${e.share_slug}')" style="white-space: nowrap; font-weight: 700; padding: 0.65rem 1.1rem;">
+              ▶ Run Test &rarr;
+            </button>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+    } catch (err) {
+      console.warn('Error loading participant studies:', err);
+    }
   },
 
   launchParticipantStudy(slug) {

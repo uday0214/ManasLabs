@@ -99,7 +99,10 @@ const StudentPortal = {
       card.style.justifyContent = 'space-between';
       card.style.alignItems = 'center';
       card.style.marginBottom = '1rem';
-      card.style.backgroundColor = 'var(--bg-card)';
+      card.style.background = 'var(--grad-gray-card)';
+      card.style.border = '1px solid var(--border-distinct)';
+      card.style.boxShadow = 'var(--shadow-sm)';
+      card.style.borderRadius = 'var(--radius-lg)';
 
       card.innerHTML = `
         <div style="max-width: 65%;">
@@ -107,10 +110,10 @@ const StudentPortal = {
             <span class="badge badge-active">OPEN FOR PARTICIPATION</span>
             <span style="font-size: 0.78rem; color: var(--text-muted);">Est. 3-5 mins</span>
           </div>
-          <h4 style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">
+          <h4 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.35rem;">
             ${this.escape(exp.title)}
           </h4>
-          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.45;">
             ${exp.description ? this.escape(exp.description.slice(0, 110)) + '...' : 'Millisecond-calibrated behavioral study.'}
           </p>
           <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.4rem;">
@@ -162,7 +165,7 @@ const StudentPortal = {
 
       tr.innerHTML = `
         <td>
-          <div style="font-weight: 700; color: #fff;">${this.escape(item.experiment_title)}</div>
+          <div style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">${this.escape(item.experiment_title)}</div>
           <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">${item.participant_token}</div>
         </td>
         <td style="font-size: 0.85rem; color: var(--text-secondary);">
