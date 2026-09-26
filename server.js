@@ -18,6 +18,37 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Health & Database Connection Diagnostic Endpoint
+app.get('/api/health', (req, res) => {
+  try {
+    const integrity = db.prepare('PRAGMA integrity_check').get();
+    const isOk = integrity && integrity.integrity_check === 'ok';
+    const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
+    const expCount = db.prepare('SELECT COUNT(*) as c FROM experiments').get().c;
+    const sessionCount = db.prepare('SELECT COUNT(*) as c FROM sessions').get().c;
+    const trialCount = db.prepare('SELECT COUNT(*) as c FROM trial_records').get().c;
+
+    res.json({
+      status: 'healthy',
+      database: {
+        connected: true,
+        integrity: isOk ? 'ok' : 'degraded',
+        counts: {
+          users: userCount,
+          experiments: expCount,
+          sessions: sessionCount,
+          trial_records: trialCount
+        }
+      },
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('[Health Check Error]', err);
+    res.status(500).json({ status: 'unhealthy', database: { connected: false, error: err.message } });
+  }
+});
+
 // Middleware: Authentication Guard
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -41,7 +72,8 @@ app.post('/api/auth/register', (req, res) => {
       return res.status(400).json({ error: 'Email, password, and full name are required' });
     }
 
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    const cleanEmail = email.trim().toLowerCase();
+    const existing = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(cleanEmail);
     if (existing) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
@@ -52,10 +84,10 @@ app.post('/api/auth/register', (req, res) => {
     db.prepare(`
       INSERT INTO users (id, email, password_hash, full_name, institution, role)
       VALUES (?, ?, ?, ?, ?, 'researcher')
-    `).run(id, email, passwordHash, full_name, institution || 'Independent Research');
+    `).run(id, cleanEmail, passwordHash, full_name.trim(), institution ? institution.trim() : 'Independent Research');
 
-    const token = jwt.sign({ id, email, full_name, role: 'researcher' }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id, email, full_name, institution, role: 'researcher' } });
+    const token = jwt.sign({ id, email: cleanEmail, full_name: full_name.trim(), role: 'researcher' }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id, email: cleanEmail, full_name: full_name.trim(), institution: institution || 'Independent Research', role: 'researcher' } });
   } catch (err) {
     console.error('[Auth Register Error]', err);
     res.status(500).json({ error: 'Registration failed' });
@@ -65,7 +97,17 @@ app.post('/api/auth/register', (req, res) => {
 app.post('/api/auth/login', (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email/Username and password are required' });
+    }
+
+    const identifier = email.trim();
+    // Allow login by email or participant ID in case user signs in here
+    const user = db.prepare(`
+      SELECT * FROM users 
+      WHERE LOWER(email) = LOWER(?) OR LOWER(participant_id) = LOWER(?)
+    `).get(identifier, identifier);
+
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -76,7 +118,7 @@ app.post('/api/auth/login', (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, full_name: user.full_name, role: user.role },
+      { id: user.id, email: user.email, full_name: user.full_name, role: user.role, participant_id: user.participant_id },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -88,7 +130,12 @@ app.post('/api/auth/login', (req, res) => {
         email: user.email,
         full_name: user.full_name,
         institution: user.institution,
-        role: user.role
+        role: user.role,
+        participant_id: user.participant_id,
+        age: user.age,
+        gender: user.gender,
+        handedness: user.handedness,
+        vision_correction: user.vision_correction
       }
     });
   } catch (err) {
@@ -113,10 +160,12 @@ app.post('/api/auth/student/login', (req, res) => {
       return res.status(400).json({ error: 'Participant ID and password are required' });
     }
 
+    const identifier = participant_id.trim();
+    // Allow case-insensitive search by participant_id or email
     const user = db.prepare(`
       SELECT * FROM users 
-      WHERE (participant_id = ? OR email = ?) AND role = 'student'
-    `).get(participant_id.trim(), participant_id.trim());
+      WHERE LOWER(participant_id) = LOWER(?) OR LOWER(email) = LOWER(?)
+    `).get(identifier, identifier);
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid Participant ID or password' });
@@ -133,7 +182,7 @@ app.post('/api/auth/student/login', (req, res) => {
         participant_id: user.participant_id,
         email: user.email,
         full_name: user.full_name,
-        role: 'student'
+        role: user.role
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -147,7 +196,7 @@ app.post('/api/auth/student/login', (req, res) => {
         full_name: user.full_name,
         email: user.email,
         institution: user.institution,
-        role: 'student',
+        role: user.role,
         age: user.age,
         gender: user.gender,
         handedness: user.handedness,
@@ -168,10 +217,12 @@ app.post('/api/auth/student/register', (req, res) => {
     }
 
     // Auto-generate participant ID if not provided
-    const assignedId = participant_id ? participant_id.trim().toUpperCase() : `SUBJ_${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+    const assignedId = participant_id && participant_id.trim().length > 0 
+      ? participant_id.trim().toUpperCase() 
+      : `SUBJ_${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
     const generatedEmail = `${assignedId.toLowerCase()}@participant.nexora.edu`;
 
-    const existing = db.prepare('SELECT id FROM users WHERE participant_id = ?').get(assignedId);
+    const existing = db.prepare('SELECT id FROM users WHERE LOWER(participant_id) = LOWER(?)').get(assignedId);
     if (existing) {
       return res.status(409).json({ error: 'This Participant ID is already taken. Please choose another.' });
     }
@@ -186,8 +237,8 @@ app.post('/api/auth/student/register', (req, res) => {
       id,
       generatedEmail,
       passwordHash,
-      full_name,
-      institution || 'Research Participant',
+      full_name.trim(),
+      institution ? institution.trim() : 'Research Participant',
       assignedId,
       age ? parseInt(age) : null,
       gender || 'unspecified',
@@ -196,7 +247,7 @@ app.post('/api/auth/student/register', (req, res) => {
     );
 
     const token = jwt.sign(
-      { id, participant_id: assignedId, email: generatedEmail, full_name, role: 'student' },
+      { id, participant_id: assignedId, email: generatedEmail, full_name: full_name.trim(), role: 'student' },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -206,7 +257,7 @@ app.post('/api/auth/student/register', (req, res) => {
       user: {
         id,
         participant_id: assignedId,
-        full_name,
+        full_name: full_name.trim(),
         institution: institution || 'Research Participant',
         role: 'student',
         age: age ? parseInt(age) : null,
@@ -330,7 +381,8 @@ app.get('/api/experiments', authenticateToken, (req, res) => {
         (SELECT COUNT(*) FROM sessions s WHERE s.experiment_id = e.id AND s.status = 'completed') AS completed_participants,
         (SELECT COUNT(*) FROM sessions s WHERE s.experiment_id = e.id) AS total_sessions
       FROM experiments e
-      WHERE e.user_id = ?
+      WHERE e.user_id = ? 
+         OR e.user_id = (SELECT id FROM users WHERE email = 'researcher@nexora.edu')
       ORDER BY e.updated_at DESC
     `).all(req.user.id);
 

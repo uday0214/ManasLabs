@@ -89,7 +89,7 @@ const App = {
 
         if (viewId === 'view-researcher' && !Auth.isLoggedIn()) {
           this.showToast('Please sign in or use Demo Scientist to enter researcher portal', 'info');
-          this.openModal('auth-modal');
+          this.openAuthModal('scientist-login');
           return;
         }
 
@@ -121,7 +121,9 @@ const App = {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // View specific activations
-    if (viewId === 'view-researcher') {
+    if (viewId === 'view-auth') {
+      this.resetAuthPortal();
+    } else if (viewId === 'view-researcher') {
       this.loadResearcherDashboard();
     } else if (viewId === 'view-participant' && !window.location.hash.startsWith('#run/')) {
       this.loadParticipantHome();
@@ -331,6 +333,44 @@ const App = {
     });
   },
 
+  handleAuthSuccess(res) {
+    Auth.currentUser = res.user;
+    Auth.renderNav();
+    this.closeModal('auth-modal');
+
+    if (res.user.role === 'student') {
+      this.showToast(`Welcome back, ${res.user.full_name}! (ID: ${res.user.participant_id || 'Participant'})`, 'success');
+      this.switchView('view-student-portal');
+      StudentPortal.init();
+    } else {
+      this.showToast(`Welcome back, ${res.user.full_name}!`, 'success');
+      this.switchView('view-researcher');
+    }
+  },
+
+  openAuthModal(defaultTab = 'scientist-login') {
+    this.openModal('auth-modal');
+    const tabMap = {
+      'student-login': { tab: 'tab-auth-student-login', form: 'form-student-login' },
+      'scientist-login': { tab: 'tab-auth-scientist-login', form: 'form-login' },
+      'student-register': { tab: 'tab-auth-student-register', form: 'form-student-register' },
+      'scientist-register': { tab: 'tab-auth-scientist-register', form: 'form-register' }
+    };
+    const target = tabMap[defaultTab] || tabMap['scientist-login'];
+    const tabs = ['tab-auth-student-login', 'tab-auth-scientist-login', 'tab-auth-student-register', 'tab-auth-scientist-register'];
+    const forms = ['form-student-login', 'form-login', 'form-student-register', 'form-register'];
+
+    tabs.forEach(t => document.getElementById(t)?.classList.remove('active'));
+    forms.forEach(f => {
+      const el = document.getElementById(f);
+      if (el) el.style.display = 'none';
+    });
+
+    document.getElementById(target.tab)?.classList.add('active');
+    const targetForm = document.getElementById(target.form);
+    if (targetForm) targetForm.style.display = 'block';
+  },
+
   setupAuthForms() {
     const tabs = ['tab-auth-student-login', 'tab-auth-scientist-login', 'tab-auth-student-register', 'tab-auth-scientist-register'];
     const forms = ['form-student-login', 'form-login', 'form-student-register', 'form-register'];
@@ -350,7 +390,7 @@ const App = {
       });
     });
 
-    // 1. Student / Participant Login
+    // 1. Student / Participant Login (Modal)
     const formStudentLogin = document.getElementById('form-student-login');
     formStudentLogin?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -359,18 +399,13 @@ const App = {
 
       try {
         const res = await API.studentLogin(participantId, pass);
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.closeModal('auth-modal');
-        this.showToast(`Welcome back, ${res.user.full_name}! (ID: ${res.user.participant_id})`, 'success');
-        this.switchView('view-student-portal');
-        StudentPortal.init();
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
     });
 
-    // 2. Student / Participant Register
+    // 2. Student / Participant Register (Modal)
     const formStudentRegister = document.getElementById('form-student-register');
     formStudentRegister?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -394,18 +429,13 @@ const App = {
           handedness,
           vision_correction: vision
         });
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.closeModal('auth-modal');
-        this.showToast(`Participant account registered! ID: ${res.user.participant_id}`, 'success');
-        this.switchView('view-student-portal');
-        StudentPortal.init();
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
     });
 
-    // 3. Scientist Login
+    // 3. Scientist Login (Modal)
     const formLogin = document.getElementById('form-login');
     formLogin?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -414,17 +444,13 @@ const App = {
 
       try {
         const res = await API.login(email, pass);
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.closeModal('auth-modal');
-        this.showToast(`Welcome back, ${res.user.full_name}!`, 'success');
-        this.switchView('view-researcher');
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
     });
 
-    // 4. Scientist Register
+    // 4. Scientist Register (Modal)
     const formRegister = document.getElementById('form-register');
     formRegister?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -435,11 +461,7 @@ const App = {
 
       try {
         const res = await API.register(name, email, pass, inst);
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.closeModal('auth-modal');
-        this.showToast('Scientist account registered successfully!', 'success');
-        this.switchView('view-researcher');
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
@@ -453,11 +475,7 @@ const App = {
       const pass = document.getElementById('portal-student-pass').value;
       try {
         const res = await API.studentLogin(id, pass);
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.showToast(`Welcome back, ${res.user.full_name}! (ID: ${res.user.participant_id})`, 'success');
-        this.switchView('view-student-portal');
-        StudentPortal.init();
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
@@ -470,10 +488,7 @@ const App = {
       const pass = document.getElementById('portal-scientist-pass').value;
       try {
         const res = await API.login(email, pass);
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.showToast(`Welcome back, ${res.user.full_name}!`, 'success');
-        this.switchView('view-researcher');
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
@@ -502,11 +517,7 @@ const App = {
           handedness: hand,
           vision_correction: vision
         });
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.showToast(`Participant account created! ID: ${res.user.participant_id}`, 'success');
-        this.switchView('view-student-portal');
-        StudentPortal.init();
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
@@ -522,10 +533,7 @@ const App = {
 
       try {
         const res = await API.register(name, email, pass, inst);
-        Auth.currentUser = res.user;
-        Auth.renderNav();
-        this.showToast('Scientist account registered successfully!', 'success');
-        this.switchView('view-researcher');
+        this.handleAuthSuccess(res);
       } catch (err) {
         this.showToast(err.message, 'error');
       }
@@ -535,10 +543,7 @@ const App = {
   async quickDemoScientist() {
     try {
       const res = await API.login('researcher@nexora.edu', 'password123');
-      Auth.currentUser = res.user;
-      Auth.renderNav();
-      this.showToast(`Logged in as ${res.user.full_name} (Research Scientist)!`, 'success');
-      this.switchView('view-researcher');
+      this.handleAuthSuccess(res);
     } catch (err) {
       this.showToast('Demo login error: ' + err.message, 'error');
     }
@@ -547,11 +552,7 @@ const App = {
   async quickDemoStudent() {
     try {
       const res = await API.studentLogin('STUDENT_001', 'password123');
-      Auth.currentUser = res.user;
-      Auth.renderNav();
-      this.showToast(`Welcome back, ${res.user.full_name}! (ID: ${res.user.participant_id})`, 'success');
-      this.switchView('view-student-portal');
-      StudentPortal.init();
+      this.handleAuthSuccess(res);
     } catch (err) {
       this.showToast('Demo student login error: ' + err.message, 'error');
     }
