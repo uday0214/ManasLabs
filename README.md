@@ -1,4 +1,4 @@
-# 🧠 Nexora | Cognitive Science & Behavioral Experimentation Platform
+# 🧠 ManasLabs | Cognitive Science & Behavioral Experimentation Platform
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen.svg)](https://nodejs.org/)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
@@ -6,9 +6,11 @@
 [![Database: SQLite WAL](https://img.shields.io/badge/Database-SQLite%203%20(WAL)-003B57.svg)](https://sqlite.org/)
 [![Docker Ready](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 
-**Nexora** is an end-to-end, high-precision cognitive neuroscience platform designed for university laboratories, psychological researchers, educators, and behavioral scientists. It bridges the gap between rigorous laboratory-grade mental chronometry and modern browser accessibility.
+Check Out our Website at **[ManasLabs](https://manaslabs.onrender.com)**.
 
-Nexora couples a **sub-millisecond PsychoJS/WebGL timing engine** with a **no-code visual Scratch block experiment builder**, **22 pre-configured canonical paradigms**, an interactive **mathematical analytics suite** (Ex-Gaussian, Tukey IQR, Signal Detection Theory), and dedicated **Researcher and Student Participant portals**.
+**ManasLabs** is an end-to-end, high-precision cognitive neuroscience platform designed for university laboratories, psychological researchers, educators, and behavioral scientists. It bridges the gap between rigorous laboratory-grade mental chronometry and modern browser accessibility.
+
+ManasLabs couples a **sub-millisecond PsychoJS/WebGL timing engine** with a **no-code visual Scratch block experiment builder**, **22 pre-configured canonical paradigms**, an interactive **mathematical analytics suite** (Ex-Gaussian, Tukey IQR, Signal Detection Theory), and dedicated **Researcher and Student Participant portals**.
 
 ---
 
@@ -35,7 +37,7 @@ Nexora couples a **sub-millisecond PsychoJS/WebGL timing engine** with a **no-co
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
-│                             NEXORA PLATFORM ENGINE                               │
+│                             ManasLabs PLATFORM ENGINE                               │
 ├──────────────────────────┬────────────────────────────┬──────────────────────────┤
 │    SCIENTIST LAB         │     SCRATCH BUILDER        │   PARTICIPANT RUNNER     │
 │  - Protocol Management   │  - Visual AST Drag & Drop  │  - PsychoJS WebGL V-Sync │
@@ -61,9 +63,9 @@ Nexora couples a **sub-millisecond PsychoJS/WebGL timing engine** with a **no-co
 
 ## ⏱️ Timing Precision & Chronometry Benchmark
 
-Reaction time (RT) in cognitive science is the primary metric of neural computation speed. Standard web survey software (Qualtrics, Google Forms, basic JavaScript) suffers from high operating system timer jitter, garbage collection pauses, and DOM reflow drift. Nexora solves this using a dedicated WebGL rendering loop:
+Reaction time (RT) in cognitive science is the primary metric of neural computation speed. Standard web survey software (Qualtrics, Google Forms, basic JavaScript) suffers from high operating system timer jitter, garbage collection pauses, and DOM reflow drift. ManasLabs solves this using a dedicated WebGL rendering loop:
 
-| Metric | Standard Web Scripts (`setTimeout` / `Date`) | Nexora Engine (PsychoJS + V-Sync + WebGL) | Scientific Advantage |
+| Metric | Standard Web Scripts (`setTimeout` / `Date`) | ManasLabs Engine (PsychoJS + V-Sync + WebGL) | Scientific Advantage |
 | :--- | :--- | :--- | :--- |
 | **Clock Resolution** | $1.0\,\text{ms}$ ($15.6\,\text{ms}$ on Windows OS timer) | **$0.005\,\text{ms}$** ($5\,\mu\text{s}$ via `performance.now()`) | **$200\times$ higher resolution** |
 | **Mean Timing Drift ($\mu$)** | $+14.2\,\text{ms}$ (unpredictable timer lag) | **$0.3\,\text{ms}$** (aligned to hardware VBL) | **$98\%$ drift reduction** |
@@ -74,7 +76,7 @@ Reaction time (RT) in cognitive science is the primary metric of neural computat
 
 ## 🧪 The 22 Standardized Cognitive Paradigms
 
-Nexora includes fully implemented, parameterized protocols with trial randomizers and empirical telemetry:
+ManasLabs includes fully implemented, parameterized protocols with trial randomizers and empirical telemetry:
 
 | # | Paradigm | Cognitive Domain | Canonical Dependent Variables |
 | :-: | :--- | :--- | :--- |
@@ -117,7 +119,7 @@ Non-coding researchers and students can create, modify, and test complete behavi
 
 ## 📊 Mathematical Analytics & Psychometrics Suite
 
-Nexora integrates native statistical pipelines for behavioral data modeling:
+ManasLabs integrates native statistical pipelines for behavioral data modeling:
 
 ### 1. Ex-Gaussian Decomposition
 Models empirical reaction time distributions by separating Gaussian sensory-motor processing from exponential attentional tail lapses:
@@ -142,7 +144,7 @@ Applies Tukey's fences ($1.5 \times \text{IQR}$) and MAD (Median Absolute Deviat
 
 ## 🔐 Dual Portal Architecture
 
-Nexora features unified authentication with automatic role detection:
+ManasLabs features unified authentication with automatic role detection:
 
 ### 🔬 Research Scientist Portal
 * Manage, edit, and duplicate protocols.
@@ -179,8 +181,8 @@ Nexora features unified authentication with automatic role detection:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/nexora.git
-cd nexora
+git clone https://github.com/your-username/ManasLabs.git
+cd ManasLabs
 ```
 
 ### 2. Install Dependencies
@@ -252,7 +254,7 @@ The database comes pre-seeded with full datasets and sample accounts:
 
 ## 🐳 Docker Deployment
 
-Nexora is containerized and ready for production deployment:
+ManasLabs is containerized and ready for production deployment:
 
 ### 1. Build the Docker Image
 ```bash
@@ -271,9 +273,9 @@ Access the application at `http://localhost:3000`.
 ## 📂 Directory Structure
 
 ```
-nexora/
+ManasLabs/
 ├── data/                       # Persistent SQLite database storage
-│   └── nexora.db               # Database file (WAL mode active)
+│   └── ManasLabs.db               # Database file (WAL mode active)
 ├── public/                     # Frontend client assets
 │   ├── css/
 │   │   └── style.css           # Glassmorphism design system & responsive styling
