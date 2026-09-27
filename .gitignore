@@ -1,4 +1,5 @@
 PRD.md
+node_modules
 data/*.db-shm
 data/*.db-wal
 *.log
